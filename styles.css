@@ -1,0 +1,116 @@
+:root{
+    font-family: "Comfortaa", sans-serif;
+    --verde-prim:rgb(0, 48, 73);
+    --verde-sec:rgb(10, 147, 150);
+    --verde-ter:rgb(148, 210, 189);
+    --amarillo:rgb(255, 183, 3);
+    --naranjo:rgb(247, 127, 0);
+    --rojo:rgb(214, 40, 40);
+}
+body{
+    min-height: 100vh;
+    background-image: linear-gradient(var(--verde-prim), var(--verde-sec), var(--verde-ter));
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+h1{
+    color: white;
+    font-weight: bold;
+    text-align: center;
+}
+#start{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#start >*{
+    padding: 10px;
+}
+#game{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+}
+#game >*{
+    margin: 20px;
+}
+.board {
+    display: grid;
+    grid-template-columns: repeat(3, 100px);
+    gap: 10px;
+}
+
+.cell {
+    width: 100px;
+    height: 100px;
+    background-color: var(--verde-ter);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 10px;
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+button{
+    padding: 10px 20px;
+    border-radius: 10px;
+    color: white;
+    border: none;
+}
+#scoreboard{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items:center ;
+    color: white;
+    
+}
+#score{
+    font-size: medium;
+    font-weight: bold;
+}
+.plSc{
+    display: flex;
+}
+#player1,
+#player2{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+#player1Score, 
+#player2Score{
+    background-color: white;
+    color: var(--verde-prim);
+    border-radius: 5px;
+    padding: 5px;
+    margin: 5px;
+}
+#startGame{
+    background-color: var(--verde-sec);
+}
+#reset{
+    background-color: var(--naranjo);
+}
+#endGame{
+    background-color: var(--rojo);
+    margin-top: 5px;
+}
+#result{
+    text-align: center;
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-top: 10px;
+}
+input{
+    border-radius: 10px;
+    border:none;
+    padding: 5px;
+}
