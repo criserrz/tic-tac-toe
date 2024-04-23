@@ -1,188 +1,134 @@
-const startDiv = document.getElementById('start');
-const startButton = document.getElementById('startGame');
-const player1NameInput = document.getElementById('player1Name');
-const player2NameInput = document.getElementById('player2Name');
-const resultDiv = document.getElementById('result');
-const startButtonDiv = document.getElementById('start').querySelector('div');
+// IIFE to encapsulate the game logic
+const gameController = (() => {
+    let gameBoard = ['', '', '', '', '', '', '', '', ''];
+    let currentPlayer;
+    let player1;
+    let player2;
+    let winner;
+    let gameActive = false;
 
-startButton.addEventListener('click', () => {
-    const name1 = player1NameInput.value || 'Player 1';
-    const name2 = player2NameInput.value || 'Player 2';
-    GameController.startGame(name1, name2);
-    displayController.render();
-    startButton.textContent = 'Play Again';
-});
-
-const Gameboard = (() => {
-    const board = ['', '', '', '', '', '', '', '', ''];
-
-    const getBoard = () => board;
-
-    const markSpot = (index, player) => {
-        if (board[index] === '') {
-            board[index] = player.getMark();
-            return true;
-        }
-        return false;
+    const playersFactory = (name, marker) => {
+        return { name, marker };
     };
 
-    const checkWinner = () => {
-        const winConditions = [
+    const checkWin = () => {
+        const winCombos = [
             [0, 1, 2], [3, 4, 5], [6, 7, 8],
             [0, 3, 6], [1, 4, 7], [2, 5, 8],
             [0, 4, 8], [2, 4, 6]
         ];
 
-        for (let condition of winConditions) {
-            if (board[condition[0]] !== '' &&
-                board[condition[0]] === board[condition[1]] &&
-                board[condition[1]] === board[condition[2]]) {
-                return { winner: board[condition[0]], combo: condition };
+        for (let combo of winCombos) {
+            if (gameBoard[combo[0]] !== '' &&
+                gameBoard[combo[0]] === gameBoard[combo[1]] &&
+                gameBoard[combo[1]] === gameBoard[combo[2]]) {
+                winner = currentPlayer;
+                highlightWin(combo);
+                return true;
             }
         }
 
-        if (board.every(cell => cell !== '')) {
-            return { winner: 'tie' };
+        if (!gameBoard.includes('')) {
+            winner = 'Tie';
+            return true;
         }
 
-        return null;
+        return false;
     };
 
-    const resetBoard = () => {
-        for (let i = 0; i < board.length; i++) {
-            board[i] = '';
-        }
+    const highlightWin = (combo) => {
+        combo.forEach(index => {
+            const cell = document.querySelector(`[data-index="${index}"]`);
+            cell.style.color = 'rgb(214, 40, 40)';
+            flicker(cell);
+        });
     };
 
-    return { getBoard, markSpot, checkWinner, resetBoard };
-})();
+    const flicker = (cell) => {
+        let color = 'rgb(0, 48, 73)';
+        const flickerInterval = setInterval(() => {
+            cell.style.color = color;
+            color = (color === 'rgb(0, 48, 73)') ? 'rgb(214, 40, 40)' : 'rgb(0, 48, 73)';
+        }, 500);
 
-const Player = (name, mark) => {
-    const getName = () => name;
-    const getMark = () => mark;
+        setTimeout(() => {
+            clearInterval(flickerInterval);
+            cell.style.color = 'rgb(214, 40, 40)';
+        }, 3000);
+    };
 
-    return { getName, getMark };
-};
-
-const GameController = (() => {
-    let currentPlayer = null;
-    let player1 = null;
-    let player2 = null;
-    let isGameOver = false;
-
-    const startGame = (name1, name2) => {
-        player1 = Player(name1, 'X');
-        player2 = Player(name2, 'O');
+    const startGame = () => {
+        player1 = playersFactory(document.getElementById('player1Name').value, 'X');
+        player2 = playersFactory(document.getElementById('player2Name').value, 'O');
         currentPlayer = player1;
-        isGameOver = false;
-    };
-
-    const switchPlayer = () => {
-        currentPlayer = currentPlayer === player1 ? player2 : player1;
-    };
-
-    const playTurn = (index) => {
-        if (!isGameOver && Gameboard.markSpot(index, currentPlayer)) {
-            switchPlayer();
-            checkGameStatus();
-        }
-    };
-
-    const checkGameStatus = () => {
-        const result = Gameboard.checkWinner();
-        if (result) {
-            isGameOver = true;
-            if (result.winner === 'tie') {
-                resultDiv.textContent = 'It\'s a tie!';
-            } else {
-                resultDiv.textContent = `${currentPlayer.getName()} wins!`;
-                scores[currentPlayer.getName().toLowerCase().replace(' ', '')]++;
-                updateScoreboard();
-            }
-            startButton.textContent = 'Start Game';
-        }
+        gameActive = true;
     };
 
     const resetGame = () => {
-        Gameboard.resetBoard();
-        currentPlayer = player1;
-        isGameOver = false;
-        resultDiv.textContent = '';
+        gameBoard = ['', '', '', '', '', '', '', '', ''];
+        document.querySelectorAll('.cell').forEach(cell => cell.textContent = '');
+        document.getElementById('result').textContent = '';
+        document.getElementById('start').style.display = 'block';
+        document.getElementById('game').style.display = 'none';
     };
 
-    const getPlayerName = (playerNumber) => {
-        return playerNumber === 1 ? player1.getName() : player2.getName();
+    const resetMarkers = () => {
+        document.querySelectorAll('.cell').forEach(cell => {
+            cell.style.color = 'rgb(0, 48, 73)';
+        });
     };
-
-    return { startGame, playTurn, resetGame, getPlayerName };
-})();
-
-const displayController = (() => {
-    const cells = document.querySelectorAll('.cell');
-    const resetButton = document.getElementById('reset');
-    const player1NameDisplay = document.getElementById('player1NameDisplay');
-    const player2NameDisplay = document.getElementById('player2NameDisplay');
-    const player1Display = document.getElementById('player1Score');
-    const player2Display = document.getElementById('player2Score');
-
-    cells.forEach(cell => {
-        cell.addEventListener('click', function() {
-            const index = this.getAttribute('data-index');
-            GameController.playTurn(index);
-            render();
+    
+    const playAgain = () => {
+        gameBoard = ['', '', '', '', '', '', '', '', ''];
+        document.querySelectorAll('.cell').forEach(cell => {
+            cell.textContent = '';
         });
-    });
+        document.getElementById('result').textContent = '';
+        resetMarkers();
+        gameActive = true;
+    };
+    
+    const handleClick = (e) => {
+        const index = e.target.getAttribute('data-index');
+        if (gameBoard[index] === '' && gameActive) {
+            gameBoard[index] = currentPlayer.marker;
+            e.target.textContent = currentPlayer.marker;
 
-    resetButton.addEventListener('click', () => {
-        GameController.resetGame();
-        render();
-    });
-
-    const render = () => {
-        const board = Gameboard.getBoard();
-        cells.forEach((cell, index) => {
-            cell.textContent = board[index];
-            cell.style.color = 'black'; // Reset cell marker color
-        });
-
-        player1NameDisplay.textContent = `Player 1: ${GameController.getPlayerName(1)}`;
-        player2NameDisplay.textContent = `Player 2: ${GameController.getPlayerName(2)}`;
-        player1Display.textContent = scores.player1;
-        player2Display.textContent = scores.player2;
-
-        const result = Gameboard.checkWinner();
-        if (result && result.winner !== 'tie') {
-            result.combo.forEach(index => {
-                cells[index].style.color = 'rgb(214, 40, 40)';
-                flicker(cells[index]);
-            });
+            if (checkWin()) {
+                if (winner !== 'Tie') {
+                    document.getElementById('result').textContent = `The winner is: ${winner.name}`;
+                } else {
+                    document.getElementById('result').textContent = 'It\'s a Tie!';
+                }
+                gameActive = false;
+            } else {
+                currentPlayer = (currentPlayer === player1) ? player2 : player1;
+            }
         }
     };
 
-    const flicker = (element, count = 0) => {
-        if (count >= 3) return;
-
-        setTimeout(() => {
-            element.style.color = 'black';
-            setTimeout(() => {
-                element.style.color = 'rgb(214, 40, 40)';
-                flicker(element, count + 1);
-            }, 300);
-        }, 300);
+    return {
+        startGame,
+        resetGame,
+        playAgain,
+        handleClick
     };
-
-    return { render };
 })();
 
-let scores = {
-    player1: 0,
-    player2: 0
-};
+// Event Listeners
+document.getElementById('startGame').addEventListener('click', () => {
+    gameController.startGame();
+    document.getElementById('start').style.display = 'none';
+    document.getElementById('game').style.display = 'flex';
+});
 
-const updateScoreboard = () => {
-    document.getElementById('player1Score').textContent = scores.player1;
-    document.getElementById('player2Score').textContent = scores.player2;
-};
+document.getElementById('reset').addEventListener('click', gameController.resetGame);
 
-// Update the scoreboard initially
-updateScoreboard();
+document.getElementById('restart').addEventListener('click', () => {
+    gameController.playAgain();
+    document.getElementById('game').style.display = 'flex';
+});
+
+document.querySelectorAll('.cell').forEach(cell => {
+    cell.addEventListener('click', gameController.handleClick);
+});

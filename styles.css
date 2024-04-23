@@ -39,13 +39,14 @@ h1{
 }
 .board {
     display: grid;
-    grid-template-columns: repeat(3, 100px);
+    grid-template-columns: repeat(3, 80px);
     gap: 10px;
+    text-align: center;
 }
 
 .cell {
-    width: 100px;
-    height: 100px;
+    width: 80px;
+    height: 80px;
     background-color: var(--verde-ter);
     display: flex;
     align-items: center;
@@ -54,13 +55,18 @@ h1{
     border-radius: 10px;
     font-size: 2rem;
     font-weight: 700;
+    
 }
 
 button{
+    width: 150px;
     padding: 10px 20px;
     border-radius: 10px;
     color: white;
     border: none;
+    text-align: center;
+    box-shadow: 10px 10px 10px rgba(0, 33, 51 .3);
+    cursor: pointer;
 }
 #scoreboard{
     display: flex;
@@ -73,9 +79,13 @@ button{
 #score{
     font-size: medium;
     font-weight: bold;
+    margin-bottom: 0px;
 }
 .plSc{
     display: flex;
+}
+.plSc >*{
+    margin: 0px 20px;
 }
 #player1,
 #player2{
@@ -98,8 +108,8 @@ button{
 #reset{
     background-color: var(--naranjo);
 }
-#endGame{
-    background-color: var(--rojo);
+#restart{
+    background-color: var(--verde-sec);
     margin-top: 5px;
 }
 #result{
